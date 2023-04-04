@@ -1,21 +1,21 @@
-/*
- * linux/include/video/st7735fb.h -- FB driver for ST7735 LCD controller
- *
- * Copyright (C) 2011, Matt Porter
- *
- * This file is subject to the terms and conditions of the GNU General Public
- * License. See the file COPYING in the main directory of this archive for
- * more details.
- */
-
 #define DRVNAME		"st7735fb"
 #define WIDTH		128
 #define HEIGHT		160
 #define BPP		16
 
-/* Supported display modules */
-#define ST7735_DISPLAY_AF_TFT18		0	/* Adafruit SPI TFT 1.8" */
 
+#define CS_GPIO		16
+#define RST_GPIO 	21
+#define DC_GPIO 	20
+#define SPI_BUS_SPEED   12000000
+/* Supported display modules */
+#define ITDB02	0 
+
+struct st7735_size {
+	u16 height;
+	u16 width;
+	u16 bpp;
+};
 /* Init script function */
 struct st7735_function {
 	u16 cmd;
@@ -32,17 +32,23 @@ enum st7735_cmd {
 };
 
 struct st7735fb_par {
-	struct spi_device *spi;
-	struct fb_info *info;
+	struct spi_device *spi; 
 	u16 *ssbuf;
 	int rst;
 	int dc;
 };
+  
+static int st7735fb_init_display(void);
+static void st7735_reset(void);
+static int st7735_write(u8 data);
+static void st7735_write_data(u8 data);
+static int st7735_write_data_buf(u8 *txbuf, int size);
+static void st7735_write_cmd(u8 data);
+static void st7735_run_cfg_script(void);
+static void st7735_set_addr_win(int xs, int ys, int xe, int ye);
 
-struct st7735fb_platform_data {
-	int rst_gpio;
-	int dc_gpio;
-};
+
+int st7735fb_print(u16 *buffer, size_t size); 
 
 /* ST7735 Commands */
 #define ST7735_NOP	0x0
@@ -84,4 +90,101 @@ struct st7735fb_platform_data {
 
 
 
-
+/* List of commands and parameters to init lcd */
+static struct st7735_function st7735_cfg_script[] = {
+	{ ST7735_START, ST7735_START},
+	{ ST7735_CMD, ST7735_SWRESET},
+	{ ST7735_DELAY, 150},
+	{ ST7735_CMD, ST7735_SLPOUT},
+	{ ST7735_DELAY, 500},
+	{ ST7735_CMD, ST7735_FRMCTR1},
+	{ ST7735_DATA, 0x01},
+	{ ST7735_DATA, 0x2c},
+	{ ST7735_DATA, 0x2d},
+	{ ST7735_CMD, ST7735_FRMCTR2},
+	{ ST7735_DATA, 0x01},
+	{ ST7735_DATA, 0x2c},
+	{ ST7735_DATA, 0x2d},
+	{ ST7735_CMD, ST7735_FRMCTR3},
+	{ ST7735_DATA, 0x01},
+	{ ST7735_DATA, 0x2c},
+	{ ST7735_DATA, 0x2d},
+	{ ST7735_DATA, 0x01},
+	{ ST7735_DATA, 0x2c},
+	{ ST7735_DATA, 0x2d},
+	{ ST7735_CMD, ST7735_INVCTR},
+	{ ST7735_DATA, 0x07},
+	{ ST7735_CMD, ST7735_PWCTR1},
+	{ ST7735_DATA, 0xa2},
+	{ ST7735_DATA, 0x02},
+	{ ST7735_DATA, 0x84},
+	{ ST7735_CMD, ST7735_PWCTR2},
+	{ ST7735_DATA, 0xc5},
+	{ ST7735_CMD, ST7735_PWCTR3},
+	{ ST7735_DATA, 0x0a},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_CMD, ST7735_PWCTR4},
+	{ ST7735_DATA, 0x8a},
+	{ ST7735_DATA, 0x2a},
+	{ ST7735_CMD, ST7735_PWCTR5},
+	{ ST7735_DATA, 0x8a},
+	{ ST7735_DATA, 0xee},
+	{ ST7735_CMD, ST7735_VMCTR1},
+	{ ST7735_DATA, 0x0e},
+	{ ST7735_CMD, ST7735_INVOFF},
+	{ ST7735_CMD, ST7735_MADCTL},
+	{ ST7735_DATA, 0xc8},
+	{ ST7735_CMD, ST7735_COLMOD},
+	{ ST7735_DATA, 0x05},
+	{ ST7735_CMD, ST7735_CASET},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x7f},
+	{ ST7735_CMD, ST7735_RASET},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x9f},
+	{ ST7735_CMD, ST7735_GMCTRP1},
+	{ ST7735_DATA, 0x02},
+	{ ST7735_DATA, 0x1c},
+	{ ST7735_DATA, 0x07},
+	{ ST7735_DATA, 0x12},
+	{ ST7735_DATA, 0x37},
+	{ ST7735_DATA, 0x32},
+	{ ST7735_DATA, 0x29},
+	{ ST7735_DATA, 0x2d},
+	{ ST7735_DATA, 0x29},
+	{ ST7735_DATA, 0x25},
+	{ ST7735_DATA, 0x2b},
+	{ ST7735_DATA, 0x39},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x01},
+	{ ST7735_DATA, 0x03},
+	{ ST7735_DATA, 0x10},
+	{ ST7735_CMD, ST7735_GMCTRN1},
+	{ ST7735_DATA, 0x03},
+	{ ST7735_DATA, 0x1d},
+	{ ST7735_DATA, 0x07},
+	{ ST7735_DATA, 0x06},
+	{ ST7735_DATA, 0x2e},
+	{ ST7735_DATA, 0x2c},
+	{ ST7735_DATA, 0x29},
+	{ ST7735_DATA, 0x2d},
+	{ ST7735_DATA, 0x2e},
+	{ ST7735_DATA, 0x2e},
+	{ ST7735_DATA, 0x37},
+	{ ST7735_DATA, 0x3f},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x00},
+	{ ST7735_DATA, 0x02},
+	{ ST7735_DATA, 0x10},
+	{ ST7735_CMD, ST7735_DISPON},
+	{ ST7735_DELAY, 100},
+	{ ST7735_CMD, ST7735_NORON},
+	{ ST7735_DELAY, 10},
+	{ ST7735_END, ST7735_END},
+};

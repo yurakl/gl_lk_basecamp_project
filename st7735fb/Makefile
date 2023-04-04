@@ -1,4 +1,5 @@
-obj-m += st7735fb.o rpi_st7735fb.o  
+obj-m += st7735fb.o st7735rdr.o  
+ccflags-y := -std=gnu99
 all:
 	$(MAKE) -C  /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
