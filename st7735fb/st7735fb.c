@@ -123,7 +123,7 @@ static struct st7735_function st7735_cfg_script[] = {
 	{ ST7735_END, ST7735_END},
 };
 
-static struct fb_fix_screeninfo st7735fb_fix __devinitdata = {
+static struct fb_fix_screeninfo st7735fb_fix = {
 	.id =		"ST7735", 
 	.type =		FB_TYPE_PACKED_PIXELS,
 	.visual =	FB_VISUAL_PSEUDOCOLOR,
@@ -134,7 +134,7 @@ static struct fb_fix_screeninfo st7735fb_fix __devinitdata = {
 	.accel =	FB_ACCEL_NONE,
 };
 
-static struct fb_var_screeninfo st7735fb_var __devinitdata = {
+static struct fb_var_screeninfo st7735fb_var = {
 	.xres =			WIDTH,
 	.yres =			HEIGHT,
 	.xres_virtual =		WIDTH,
@@ -384,7 +384,7 @@ static struct fb_deferred_io st7735fb_defio = {
 	.deferred_io	= st7735fb_deferred_io,
 };
 
-static int __devinit st7735fb_probe (struct spi_device *spi)
+static int st7735fb_probe (struct spi_device *spi)
 {
 	int chip = spi_get_device_id(spi)->driver_data;
 	struct st7735fb_platform_data *pdata = spi->dev.platform_data;
@@ -443,7 +443,7 @@ static int __devinit st7735fb_probe (struct spi_device *spi)
 	vmem = vzalloc(vmem_size);
 	if (!vmem)
 		return retval;
-	par->ssbuf = vmem;
+	par->ssbuf = (u16 *) vmem;
 #endif
 
 	retval = register_framebuffer(info);
@@ -476,7 +476,7 @@ fballoc_fail:
 	return retval;
 }
 
-static int __devexit st7735fb_remove(struct spi_device *spi)
+static int st7735fb_remove(struct spi_device *spi)
 {
 	struct fb_info *info = spi_get_drvdata(spi);
 
@@ -507,7 +507,7 @@ static struct spi_driver st7735fb_driver = {
 	},
 	.id_table = st7735fb_ids,
 	.probe  = st7735fb_probe,
-	.remove = __devexit_p(st7735fb_remove),
+	.remove = st7735fb_remove,
 };
 
 static int __init st7735fb_init(void)
