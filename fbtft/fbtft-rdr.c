@@ -23,7 +23,7 @@ static u32 char_buf_h, char_buf_w;
 
 static u16 font_color = 0xffff;
 static u16 screen_color = 0x0000;
-
+/*
 static void string_to_pix(void)
 {
 	u32 ipix = 0;
@@ -41,11 +41,11 @@ static void string_to_pix(void)
 			for (int k = 0; k < st7735_s.width; k++)
 			{ 
 				u8 letter = char_buf[i * char_buf_w + k / font_w] - 32;
-				/*if ((letter < 32) && (letter > 127))
-					letter = letter - 32;
-				else
-					letter = 0;
-					*/
+				//if ((letter < 32) && (letter > 127))
+				//	letter = letter - 32;
+				//else
+				//	letter = 0;
+				//
 				if (font[letter][k % font_w] & ((u8) 0x01 << j))
 					pix_buf[ipix] = font_color;
 				else
@@ -67,20 +67,22 @@ static void string_to_pix(void)
 	st7735fb_print(pix_buf, pix_buf_size);
 	
 }
-
+*/
 static int __init st7735rdr_init(void) 
 {
-	pix_buf_size =  st7735_s.width * st7735_s.height * st7735_s.bpp / 8;
+	/*pix_buf_size =  fbtft_info->var.xres * fbtft_info->var.yres * fbtft_info->var.bits_per_pixel / 8;
 	pix_buf = vzalloc(pix_buf_size);
-	memset(pix_buf, 0x00, pix_buf_size);
+	//memset(pix_buf, 0x00, pix_buf_size);
 	if (!pix_buf) 
 		return -ENOMEM;	
-	
-	char_buf_h = st7735_s.height / FONT_CHAR_HEIGHT;
-	char_buf_w = st7735_s.width / FONT_CHAR_WIDTH;
+	*/
+	pix_buf = (u16 *) fbtft_info->screen_base;
+	char_buf_h = fbtft_info->var.yres / FONT_CHAR_HEIGHT;
+	char_buf_w = fbtft_info->var.xres / FONT_CHAR_WIDTH;
+	pr_info("xres: %u, yres: %u, screen_size: %lu\n", fbtft_info->var.xres, fbtft_info->var.yres, fbtft_info->screen_size);
 	char_buf_size = char_buf_h * char_buf_w;
 	char_buf = vzalloc(char_buf_size);
-	string_to_pix();
+	//string_to_pix();
 	return 0;
 }
 
