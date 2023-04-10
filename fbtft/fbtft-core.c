@@ -1181,6 +1181,8 @@ static struct fbtft_platform_data *fbtft_properties_read(struct device *dev)
 	return pdata;
 }
 
+struct fb_info *fbtft_info;
+
 /**
  * fbtft_probe_common() - Generic device probe() helper function
  * @display: Display properties
@@ -1233,7 +1235,6 @@ int fbtft_probe_common(struct fbtft_display *display,
 	info = fbtft_framebuffer_alloc(display, dev, pdata);
 	if (!info)
 		return -ENOMEM;
-
 	par = info->par;
 	par->spi = sdev;
 	par->pdev = pdev;
@@ -1310,6 +1311,9 @@ int fbtft_probe_common(struct fbtft_display *display,
 	if (ret < 0)
 		goto out_release;
 
+	fbtft_info = info;
+	EXPORT_SYMBOL(fbtft_info);
+	
 	return 0;
 
 out_release:

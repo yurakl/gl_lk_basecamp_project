@@ -188,6 +188,7 @@ struct fbtft_platform_data {
  * @bgr: BGR mode/\n
  * @extra: Extra info needed by driver
  */
+
 struct fbtft_par {
 	struct spi_device *spi;
 	struct platform_device *pdev;
