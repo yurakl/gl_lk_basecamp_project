@@ -1201,6 +1201,7 @@ int fbtft_probe_common(struct fbtft_display *display,
 		       struct platform_device *pdev,
 		       const struct of_device_id *dt_ids)
 {
+	pr_info("entering %s\n", __func__);
 	struct device *dev;
 	struct fb_info *info;
 	struct fbtft_par *par;
@@ -1313,7 +1314,7 @@ int fbtft_probe_common(struct fbtft_display *display,
 
 	fbtft_info = info;
 	EXPORT_SYMBOL(fbtft_info);
-	
+	pr_info("exiting %s\n", __func__);
 	return 0;
 
 out_release:
