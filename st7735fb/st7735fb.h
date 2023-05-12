@@ -37,7 +37,8 @@ struct st7735fb_par {
 	int rst;
 	int dc;
 };
-  
+ 
+ 
 static int st7735fb_init_display(void);
 static void st7735_reset(void);
 static int st7735_write(u8 data);

@@ -19,7 +19,7 @@ struct st7735_size st7735_s = {
 	.width = WIDTH,
 	.bpp =	BPP,
 };
-EXPORT_SYMBOL(st7735_s);
+//EXPORT_SYMBOL(st7735_s);
 	
 int st7735fb_print(u16 *buffer, size_t size)
 {
@@ -30,7 +30,7 @@ int st7735fb_print(u16 *buffer, size_t size)
 	st7735_write_cmd(ST7735_NOP);
 	return 0;
 }
-EXPORT_SYMBOL(st7735fb_print);
+//EXPORT_SYMBOL(st7735fb_print);
 
 
 static int st7735fb_init_display(void)
@@ -179,7 +179,7 @@ static int st7735fb_probe (struct spi_device *spi)
 		 
 	st7735fb_init_display(); 
 	
-	while (i < WIDTH * HEIGHT / 4)
+	while (i < WIDTH * HEIGHT)
 	{
 		par->ssbuf[i] = 0x1f;
 		i++;
@@ -188,7 +188,7 @@ static int st7735fb_probe (struct spi_device *spi)
 	mdelay(1000);
         
         i = 0;
-	while (i < WIDTH * HEIGHT / 5)
+	while (i < WIDTH * HEIGHT)
 	{
 		par->ssbuf[i] = 0x0f << 6;
 		i++;
@@ -197,7 +197,7 @@ static int st7735fb_probe (struct spi_device *spi)
         mdelay(1000);
         
         i = 0;
-	while (i < WIDTH * HEIGHT / 6)
+	while (i < WIDTH * HEIGHT)
 	{
 		par->ssbuf[i] = 0x1f << 12;
 		i++;
