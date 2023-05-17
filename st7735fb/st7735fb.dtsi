@@ -8,7 +8,7 @@
 			#size-cells = <0>;
 			status = "okay";
 			spi_device: spi_device@0 {
-			compatible = "st7735fb";
+			compatible = "st7735, glfb";
 			reg = <0>;
 			spi-max-frequency = <12000000>;
 			};
