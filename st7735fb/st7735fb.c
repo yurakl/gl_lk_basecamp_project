@@ -18,9 +18,9 @@
 #define WIDTH		128
 #define HEIGHT		160
 #define BPP		16
-#define CS_GPIO		24
-#define RST_GPIO 	21
-#define DC_GPIO 	20
+#define CS_GPIO		8
+#define RST_GPIO 	27
+#define DC_GPIO 	22
 #define SPI_BUS_SPEED   12000000
 
 #include "glfb.h"
@@ -31,6 +31,9 @@ static const s16 default_init_sequence[] = {
 	-1, MIPI_DCS_EXIT_SLEEP_MODE,
 	-2, 500,                               /* delay */
 
+
+	-1, 0x21,
+	-2, 1000,                               /* delay */ 
 	/* FRMCTR1 - frame rate control: normal mode
 	 * frame rate = fosc / (1 x 2 + 40) * (LINE + 2C + 2D)
 	 */

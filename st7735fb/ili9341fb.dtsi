@@ -1,0 +1,17 @@
+/dts-v1/;
+/plugin/;
+/ {
+	fragment@0 {
+		target = <&spi0>;
+			__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+			spi_device: spi_device@0 {
+			compatible = "glfb"; 
+			reg = <0>;
+			spi-max-frequency = <12000000>;  
+			};
+		};
+	};
+};

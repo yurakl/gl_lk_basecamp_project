@@ -60,13 +60,16 @@ static void glfb_run_cfg_script(void)
 	while (glfb_par.init_sequence[i] != -3 && i < max_num)
 	{ 
 		if (glfb_par.init_sequence[i] == -1) {
-			glfb_write_cmd(glfb_par.init_sequence[++i]);
+			glfb_write_cmd(glfb_par.init_sequence[++i] & 0xff);
+			pr_info("-1: %x\n", glfb_par.init_sequence[i]);
 		}
 		else if (glfb_par.init_sequence[i] == -2) { 
 			mdelay(glfb_par.init_sequence[++i]);
+			pr_info("-2: %x\n", glfb_par.init_sequence[i]);
 		}
 		else {
-			glfb_write_data(glfb_par.init_sequence[i]);
+			glfb_write_data(glfb_par.init_sequence[i] & 0xff);
+			pr_info("%x\n", glfb_par.init_sequence[i]);
 		}
 		i++;
 			
@@ -77,14 +80,14 @@ static void glfb_set_addr_win(int xs, int ys, int xe, int ye)
 {
 	glfb_write_cmd(MIPI_DCS_SET_COLUMN_ADDRESS);
 	glfb_write_data(0x00);
-	glfb_write_data(xs); //st7735_write_data(xs+2);
+	glfb_write_data(xs & 0xFF); //st7735_write_data(xs+2);
 	glfb_write_data(0x00);
-	glfb_write_data(xe);
+	glfb_write_data(xe & 0xFF);
 	glfb_write_cmd(MIPI_DCS_SET_PAGE_ADDRESS);
 	glfb_write_data(0x00);
-	glfb_write_data(ys); // st7735_write_data(ys+1);
+	glfb_write_data(ys & 0xFF); // st7735_write_data(ys+1);
 	glfb_write_data(0x00);
-	glfb_write_data(ye);
+	glfb_write_data(ye & 0xFF);
 }
 
 static void glfb_reset(void)
@@ -149,7 +152,7 @@ int glfb_probe(struct spi_device *spi)
 		return ret;
 	} 
 		 
-	spi->mode = SPI_MODE_3;
+	spi->mode = SPI_MODE_0;
 	spi->max_speed_hz = glfb_par.speed;
 	spi->bits_per_word = 8;
 	spi->cs_gpio = glfb_par.cs; 
@@ -173,6 +176,8 @@ int glfb_probe(struct spi_device *spi)
 	if (!glfb_par.ssbuf)
 		return ret; 
 	glfb_init_display();  
+	
+	while (i < glfb_par.width * glfb_par.height)
 	while (i < glfb_par.width * glfb_par.height)
 	{
 		glfb_par.ssbuf[i] = 0x1f;
