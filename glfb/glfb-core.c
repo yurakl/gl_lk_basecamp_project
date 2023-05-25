@@ -56,20 +56,16 @@ static void glfb_run_cfg_script(void)
 {
 	int i = 0;
 	int max_num = 512;
-	pr_info("glfb_run_cfg_script\n");
 	while (glfb_par.init_sequence[i] != -3 && i < max_num)
 	{ 
 		if (glfb_par.init_sequence[i] == -1) {
 			glfb_write_cmd(glfb_par.init_sequence[++i] & 0xff);
-			pr_info("-1: %x\n", glfb_par.init_sequence[i]);
 		}
 		else if (glfb_par.init_sequence[i] == -2) { 
 			mdelay(glfb_par.init_sequence[++i]);
-			pr_info("-2: %x\n", glfb_par.init_sequence[i]);
 		}
 		else {
 			glfb_write_data(glfb_par.init_sequence[i] & 0xff);
-			pr_info("%x\n", glfb_par.init_sequence[i]);
 		}
 		i++;
 			
@@ -141,7 +137,7 @@ static void glfb_write_cmd(u8 data)
 }
  
 int glfb_probe(struct spi_device *spi)
-{ ;
+{
 	int ret = 0, i = 0;
 	int vmem_size = glfb_par.width * glfb_par.height * 2;
 	 

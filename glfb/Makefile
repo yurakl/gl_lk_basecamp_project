@@ -1,6 +1,6 @@
-obj-m += glfb_st7735.o glfb_ili9341.o  glfb-rdr.o  
+obj-m += glfb_st7735.o glfb-rdr.o  test.o
 glfb_st7735-objs := st7735fb.o  glfb-core.o
-glfb_ili9341-objs := ili9341fb.o  glfb-core.o
+glfb-rdr-objs := glfb-rdr-core.o  
 ccflags-y := -std=gnu99
 
 all:

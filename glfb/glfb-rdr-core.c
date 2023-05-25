@@ -7,28 +7,24 @@
 #include <linux/string.h>
 #include "font5x7.h"
 #include <linux/delay.h>
-#include "glfb.h"
- 
-extern struct glfb_lcd_par glfb_par; 
-extern int glfb_print(u16 *buffer, size_t size);
-
-char string[] = "If it is impractical to add a top-level kbuild file, you can assign a space separated list of files to KBUILD_EXTRA_SYMBOLS in your build file. These files will be loaded by modpost during the initialization of its symbol tables.";
-
+#include "glfb.h" 
 u16 *pix_buf;
 u32 pix_buf_size;
+u8 *char_buf;
+u32 char_buf_size;
+u32 char_buf_h, char_buf_w;
+u16 font_color = 0xffff;
+u16 screen_color = 0x0000;
 
-static u32 font_w = FONT_CHAR_WIDTH;
-static u32 font_h = FONT_CHAR_HEIGHT;
-static u8 *char_buf;
-static u32 char_buf_size;
-static u32 char_buf_h, char_buf_w;
+extern struct glfb_lcd_par glfb_par; 
+extern int glfb_print(u16 *buffer, size_t size);
+u32 font_w = FONT_CHAR_WIDTH;
+u32 font_h = FONT_CHAR_HEIGHT;
 
-static u16 font_color = 0xffff;
-static u16 screen_color = 0x0000;
-
-static void string_to_pix(void)
+void glfb_print_string(char * string)
 {
 	u32 ipix = 0;
+	static u32 position = 0;
 	if (strlen(string) < char_buf_size)
 		memcpy(char_buf, string, strlen(string));
 	else
@@ -36,12 +32,20 @@ static void string_to_pix(void)
 	pr_info("char_buf_size: %u\n", char_buf_size);
 	 
 		
+	//for (int i = position; i < char_buf_h; i++)
 	for (int i = 0; i < char_buf_h; i++)
 	{
+		/*
+		if (position == char_buf_h) {
+			memcpy(char_buf, char_buf + char_buf_w, char_buf_size - char_buf_w);
+			position--;
+		}
+		*/	
 		for (int j = 0; j < font_h; j++)
 		{
 			for (int k = 0; k < glfb_par.width; k++)
 			{ 
+				
 				u8 letter = char_buf[i * char_buf_w + k / font_w] - 32;
 				/*if ((letter < 32) && (letter > 127))
 					letter = letter - 32;
@@ -60,8 +64,6 @@ static void string_to_pix(void)
 					//pix_buf[k + j * st7735_s.width + i * st7735_s.width * font_h] = font_color; 
 			}
 		}
-		
-		
 	}
 	
 	
@@ -69,6 +71,15 @@ static void string_to_pix(void)
 	glfb_print(pix_buf, pix_buf_size);
 	
 }
+EXPORT_SYMBOL(glfb_print_string);
+void glfb_clean(void)
+{
+	memset((u16 *) pix_buf, screen_color, pix_buf_size);
+	memset(char_buf, 0, char_buf_size);
+	glfb_print(pix_buf, pix_buf_size);
+	return;
+}
+EXPORT_SYMBOL(glfb_clean);
 
 static int __init glfb_rdr_init(void) 
 {
@@ -81,13 +92,13 @@ static int __init glfb_rdr_init(void)
 	char_buf_h = glfb_par.height / FONT_CHAR_HEIGHT;
 	char_buf_w = glfb_par.width / FONT_CHAR_WIDTH;
 	char_buf_size = char_buf_h * char_buf_w;
-	char_buf = vzalloc(char_buf_size);
-	string_to_pix();
+	char_buf = vzalloc(char_buf_size); 
+	glfb_print_string("Wake up, Neo");
 	return 0;
 }
 
 static void __exit glfb_rdr_exit(void) {
-	pr_info("End fo the world!\n");
+	pr_info("End fo the world!\n"); 
 }
 
 
